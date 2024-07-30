@@ -44,11 +44,7 @@ export default class DoublyLinkedList<T> {
             value: item,
         };
 
-        let curr = this.head;
-        for (let i = 0; i < idx && curr; i++) {
-            curr = curr.next;
-        }
-        curr = curr as Node<T>;
+        const curr = this.getAt(idx) as Node<T>;
 
         node.next = curr;
         node.prev = curr.prev;
@@ -79,28 +75,52 @@ export default class DoublyLinkedList<T> {
             curr = curr.next;
         }
         if (!curr) {
-            return;
+            return undefined;
         }
 
-        this.length--;
-
-        if (this.length === 0) {
-            this.head = this.tail = undefined;
-            return;
-        }
-
-        curr.prev = 
-
+        return this.removeNode(curr);
     }
     get(idx: number): T | undefined {
+        return this.getAt(idx)?.value;
+    }
+    removeAt(idx: number): T | undefined {
+        const node = this.getAt(idx);
+        if (!node) {
+            return undefined;
+        }
+        return this.removeNode(node);
+    }
+
+    private getAt(idx: number): Node<T> | undefined {
         let curr = this.head;
         for (let i = 0; i < idx && curr; i++) {
             curr = curr.next;
         }
-
-        return curr?.value;
+        return curr;
     }
-    removeAt(idx: number): T | undefined {
-        return undefined;
+
+    private removeNode(node: Node<T>): T | undefined {
+        this.length--;
+
+        if (this.length === 0) {
+            const value = this.head?.value;
+            this.head = this.tail = undefined;
+            return value;
+        }
+
+        if (node.prev) {
+            node.prev.next = node.next;
+        } else {
+            this.head = node.next;
+        }
+
+        if (node.next) {
+            node.next.prev = node.prev;
+        } else {
+            this.tail = node.prev;
+        }
+
+        node.next = node.prev = undefined;
+        return node.value;
     }
 }
